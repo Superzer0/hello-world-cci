@@ -2,40 +2,40 @@
 version: 2.1
 
 commands: 
-	restore_nuget_cache:
-		steps:
-			- restore_cache:
-				keys:
-					- dotnet-packages-v1-{{ checksum "HelloMoto/HelloMoto.csproj" }}
+  restore_nuget_cache:
+    steps:
+      - restore_cache:
+          keys:
+            - dotnet-packages-v1-{{ checksum "HelloMoto/HelloMoto.csproj" }}
 
-	save_nuget_cache:
-		steps:
-			- save_cache:
-				paths:
-					- ~/.nuget/packages
-				key: dotnet-packages-v1-{{ checksum "HelloMoto/HelloMoto.csproj" }}
-	dotnet_build:
-		steps:
-			- run dotnet publish -c Release -r linux-x64 --output /tmp/hello-moto-artifacts HelloMoto.sln
-	build:
-		steps:
-			- checkout
-			- restore_cache
-			- dotnet_build
-			- save_cache
-			- store_artifacts:
-				path: /tmp/hello-moto-artifacts
+  save_nuget_cache:
+    steps:
+      - save_cache:
+          paths:
+            - ~/.nuget/packages
+          key: dotnet-packages-v1-{{ checksum "HelloMoto/HelloMoto.csproj" }}
+  dotnet_build:
+    steps:
+      - run: dotnet publish -c Release -r linux-x64 --output /tmp/hello-moto-artifacts HelloMoto.sln
+  build:
+    steps:
+      - checkout
+      - restore_cache
+      - dotnet_build
+      - save_cache
+      - store_artifacts:
+          path: /tmp/hello-moto-artifacts
 executors:
-	aspcore-executor:
-		docker:
-			- image: mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
+  aspcore-executor:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
 
 jobs: 
-	build-with-docker:
-		executor: aspcore-executor
-		steps:
-			- build
+  build-with-docker:
+    executor: aspcore-executor
+    steps:
+      - build
 workflows:
-	build_job:
-		jobs:
-			- build-with-docker
+  build_job:
+    jobs:
+      - build-with-docker

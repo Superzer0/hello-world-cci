@@ -14,15 +14,17 @@ commands:
           paths:
             - ~/.nuget/packages
           key: dotnet-packages-v1-{{ checksum "HelloMoto/HelloMoto.csproj" }}
+
   dotnet_build:
     steps:
       - run: dotnet publish -c Release -r linux-x64 --output /tmp/hello-moto-artifacts HelloMoto.sln
+
   build:
     steps:
       - checkout
       - restore_cache
       - dotnet_build
-      - save_cache
+      - save_nuget_cache
       - store_artifacts:
           path: /tmp/hello-moto-artifacts
 executors:

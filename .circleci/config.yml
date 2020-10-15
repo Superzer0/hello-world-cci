@@ -22,7 +22,6 @@ commands:
   build:
     steps:
       - checkout
-      - restore_nuget_cache
       - dotnet_build
       - save_nuget_cache
       - run:

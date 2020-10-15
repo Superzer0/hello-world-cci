@@ -29,6 +29,7 @@ commands:
           command: tar -cvzf /tmp/hello-moto-app.tar /tmp/hello-moto-artifacts
       - store_artifacts:
           path: /tmp/hello-moto-app.tar
+       
 executors:
   aspcore-executor:
     docker:
@@ -39,7 +40,28 @@ jobs:
     executor: aspcore-executor
     steps:
       - build
+  example1:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - run:
+          name: "echo environment variables from org-global context"
+          command: echo $MY_SECRET_VAR
+  example2:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - run:
+          name: "echo environment variables from org-global context"
+          command: echo $MY_SECRET_VAR
+
 workflows:
   build_job:
     jobs:
       - build-with-docker
+      - example1:
+          context:
+            - my-secrets
+      - example2:
+          requires: 
+              - example1

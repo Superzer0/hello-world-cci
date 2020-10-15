@@ -25,8 +25,11 @@ commands:
       - restore_nuget_cache
       - dotnet_build
       - save_nuget_cache
+      - run:
+          name: Compress Artifacts
+          command: tar -cvzf /tmp/hello-moto-app.tar /tmp/hello-moto-artifacts
       - store_artifacts:
-          path: /tmp/hello-moto-artifacts
+          path: /tmp/hello-moto-app.tar
 executors:
   aspcore-executor:
     docker:

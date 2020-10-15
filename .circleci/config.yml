@@ -1,13 +1,41 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-# Use a package of configuration called an orb.
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.4.1
-# Orchestrate or schedule a set of jobs
+
+commands: 
+	restore_nuget_cache:
+		steps:
+			- restore_cache:
+				keys:
+					- dotnet-packages-v1-{{ checksum "HelloMoto/HelloMoto.csproj" }}
+
+	save_nuget_cache:
+		steps:
+			- save_cache:
+				paths:
+					- ~/.nuget/packages
+				key: dotnet-packages-v1-{{ checksum "HelloMoto/HelloMoto.csproj" }}
+	dotnet_build:
+		steps:
+			- run dotnet publish -c Release -r linux-x64 --output /tmp/hello-moto-artifacts HelloMoto.sln
+	build:
+		steps:
+			- checkout
+			- restore_cache
+			- dotnet_build
+			- save_cache
+			- store_artifacts:
+				path: /tmp/hello-moto-artifacts
+executors:
+	aspcore-executor:
+		docker:
+			- image: mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
+
+jobs: 
+	build-with-docker:
+		executor: aspcore-executor
+		steps:
+			- build
 workflows:
-  # Name the workflow "welcome"
-  welcome:
-    # Run the welcome/run job in its own container
-    jobs:
-      - welcome/run
+	build_job:
+		jobs:
+			- build-with-docker
